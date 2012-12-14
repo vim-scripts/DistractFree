@@ -1,0 +1,20 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=4357
+
+PLEASE RATE THIS PLUGIN, IF YOU LIKE IT! 
+
+Feedback is always welcome. See :h DistractFree-feedback. 
+
+This plugin has been made to enable a WriteRoom/DarkRoom/OmniWriter like behaviour in Vim.
+
+When enabled, all unnecessary features are turned off, so you can concentrate
+on writing with Vim. It also creates on each side a couple of empty windows,
+so that the text will be centered around the screen.
+
+This plugin defines the following commands:
+
+:DistractFreeToggle
+
+This commnd toggles between normal Vim mode and the distraction free mode.
+
+Alternatively, you can use the key <leader>W in normal mode to toggle between normal
+mode and Distraction Free mode. (If you haven't setup your leaderkey, see| use the '&#039 key)
