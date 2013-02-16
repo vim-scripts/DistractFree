@@ -1,8 +1,8 @@
 " DistractFree.vim - A DarkRoom/WriteRoom like plugin
 " -------------------------------------------------------------
-" Version:	   0.3
+" Version:	   0.4
 " Maintainer:  Christian Brabandt <cb@256bit.org>
-" Last Change: Fri, 14 Dec 2012 22:31:57 +0100
+" Last Change: Sat, 16 Feb 2013 23:00:41 +0100
 "
 " Script: http://www.vim.org/scripts/script.php?script_id=XXXX
 " Copyright:   (c) 2009, 2010 by Christian Brabandt
@@ -11,20 +11,20 @@
 "			   instead of "Vim".
 "			   No warranty, express or implied.
 "	 *** ***   Use At-Your-Own-Risk!   *** ***
-" GetLatestVimScripts: 4357 3 :AutoInstall: DistractFree.vim
+" GetLatestVimScripts: 4357 4 :AutoInstall: DistractFree.vim
 "
 " Functions:
 " (autoloaded) file
 
 " Functions: "{{{1
 " Output a warning message, if 'verbose' is set
-fu! <sid>WarningMsg(text) "{{{2
+fu! <sid>WarningMsg(text, force) "{{{2
 	if empty(a:text)
 		return
 	endif
 	let text = "DistractFree: ". a:text
 	let v:errmsg = text
-	if !&verbose
+	if !&verbose && !a:force
 		return
 	endif
 	echohl WarningMsg
@@ -44,6 +44,11 @@ fu! <sid>Init() " {{{2
     " The colorscheme to load
     if !exists( "g:distractfree_colorscheme" )
         let g:distractfree_colorscheme = ""
+    endif
+
+    " The font to use
+    if !exists( "g:distractfree_font" )
+        let g:distractfree_font = ""
     endif
 
     " The "scrolloff" value: how many lines should be kept visible above and below
@@ -94,7 +99,14 @@ endfu
 
 fu! <sid>SaveRestore(save) " {{{2
     if a:save
-        let s:colors = g:colors_name
+		if exists("g:colors_name")
+			let s:colors = g:colors_name
+		endif
+		if !empty(g:distractfree_font)
+			let s:guifont = &guifont
+			sil! let &guifont=g:distractfree_font
+		endif
+
         let s:_a = 
             \ [ &l:t_mr, &l:so, &l:ls, &l:tw, &l:nu, &l:lbr, &l:wrap, &l:stl, &g:stl, &l:cul, &l:cuc, &l:go, &l:fcs, &l:ru ]
         if exists("+rnu")
@@ -108,7 +120,7 @@ fu! <sid>SaveRestore(save) " {{{2
 		if exists("g:distractfree_colorscheme") && !empty(g:distractfree_colorscheme)
 			let colors = "colors/". g:distractfree_colorscheme . (g:distractfree_colorscheme[-4:] == ".vim" ? "" : ".vim")
 			if !(<sid>LoadFile(colors))
-				call <sid>WarningMsg("Colorscheme ". g:distractfree_colorscheme. " not found!")
+				call <sid>WarningMsg("Colorscheme ". g:distractfree_colorscheme. " not found!",0)
 			endif
 		endif
         " Set highlighting
@@ -117,7 +129,12 @@ fu! <sid>SaveRestore(save) " {{{2
         endfor
     else
 		unlet! g:colors_name
-        exe "colors" s:colors
+		if exists("s:colors")
+			exe "colors" s:colors
+		endif
+		if exists("s:guifont")
+			let &guifont = s:guifont
+		endif
         let [ &l:t_mr, &l:so, &l:ls, &l:tw, &l:nu, &l:lbr, &l:wrap, &l:stl, &g:stl, &l:cul, &l:cuc, &l:go, &l:fcs, &l:ru ] = s:_a
         if exists("+rnu")
             let &l:rnu = s:_rnu
@@ -129,6 +146,7 @@ fu! <sid>ResetHi(group) "{{{2
 	if !exists("s:default_hi")
 		redir => s:default_hi | sil! hi Normal | redir END
 	endif
+	let s:default_hi = substitute(s:default_hi, 'font=.*$', '', '')
 	let s:default_hi = substitute(s:default_hi, '.*xxx\s*\(.*$\)', '\1', '')
 	let s:default_hi = substitute(s:default_hi, '\w*fg=\S*', '', 'g')
 	let s:default_hi = substitute(s:default_hi, '\(\w*\)bg=\(\S*\)', '\0 \1fg=\2', 'g')
@@ -139,6 +157,10 @@ fu! <sid>NewWindow(cmd) "{{{2
     exe a:cmd
     sil! setlocal noma nocul nonu nornu buftype=nofile winfixwidth winfixheight
     let s:bwipe = bufnr('%')
+	augroup DistractFreeWindow
+		au!
+		au BufEnter <buffer> noa wincmd p
+	augroup END
     wincmd p
 endfu
 
@@ -233,6 +255,14 @@ fu! DistractFree#DistractFreeToggle() "{{{2
             exe g:distractfree_hook['stop']
         endif
     else
+		try
+			sil wincmd o
+		catch
+			" wincmd o does not work, probably because of other split window
+			" which have not been saved yet
+			call <sid>WarningMsg("Can't start DistractFree mode, other windows contain non-saved changes!", 1)
+			return
+		endtry
         let s:sidebar = (&columns - s:minwidth) / 2
         let s:lines = (&lines - s:minheight) / 2
         " Create the left sidebar
