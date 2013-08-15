@@ -1,7 +1,7 @@
 *DistractFree.txt*   A plugin for WriteRoom like Editing with Vim
 
 Author:     Christian Brabandt <cb@256bit.org>
-Version:    0.4 Sat, 16 Feb 2013 23:00:41 +0100
+Version:    0.5 Wed, 14 Aug 2013 22:36:39 +0200
 Copyright:  (c) 2009, 2010, 2011, 2012 by Christian Brabandt         
             The VIM LICENSE applies to DistractFree.txt
             (see |copyright|) except use DistractFree instead of "Vim".
@@ -111,16 +111,16 @@ Distraction free mode in transparent mode using VimTweak
 (http://www.vim.org/scripts/script.php?script_id=687). So to setup everything
 on start, you set the variable g:distractfree_hook variable like this: >
 
-    let g:distractfree_hook = []
-    let g:distractfree_hook["start"] = ':call libcallnr("vimtweak.dll", "SetAlpha", 210) |'. 
-        \ ':call libcallnr("vimtweak.dll", "EnableMaximize", 1)  |'.
-        \ ':call libcallnr("vimtweak.dll", "EnableCaption", 0)   |'.
-        \ ':call libcallnr("vimtweak.dll", "EnableTopMost", 1) '
+    let g:distractfree_hook = {}
+    let g:distractfree_hook.start = 'call libcallnr("vimtweak.dll", "SetAlpha", 210) |'. 
+        \ 'call libcallnr("vimtweak.dll", "EnableMaximize", 1)  |'.
+        \ 'call libcallnr("vimtweak.dll", "EnableCaption", 0)   |'.
+        \ 'call libcallnr("vimtweak.dll", "EnableTopMost", 1) '
 
-    let g:distractfree_hook["stop"] = ':call libcallnr("vimtweak.dll", "SetAlpha", 255) |'.
-        \ ':call libcallnr("vimtweak.dll", "EnableMaximize", 0)  |'.
-        \ ':call libcallnr("vimtweak.dll", "EnableCaption", 1)   |'.
-        \ ':call libcallnr("vimtweak.dll", "EnableTopMost", 0)   |'
+    let g:distractfree_hook.stop = 'call libcallnr("vimtweak.dll", "SetAlpha", 255) |'.
+        \ 'call libcallnr("vimtweak.dll", "EnableMaximize", 0)  |'.
+        \ 'call libcallnr("vimtweak.dll", "EnableCaption", 1)   |'.
+        \ 'call libcallnr("vimtweak.dll", "EnableTopMost", 0)   |'
 
 This setups a start hook, that will be executed on Distraction Free Mode start
 (using the "start" key) and stop mode (using the "stop" key).
@@ -149,6 +149,15 @@ looking at my Amazon whishlist: http://www.amazon.de/wishlist/2BKAHE8J7Z6UW
 ==============================================================================
 4. DistractFree History                                   *DistractFree-history*
 ==============================================================================
+
+0.5: Aug 14, 2013 {{{1
+- updated documentation by Ingo Karkat, Thanks!, issue #1
+- Make State of plugin avaivable to extern (patch by Ingo Karkat, Thanks!,
+  issue #2)
+- Ensure, padding of 'stl' works correctly (patch by Ingo Karkat, Thanks!,
+  issue #3)
+- :q in DistractMode quits vim correctly
+- Save/Restore User highlighting
 
 0.4: Feb 16, 2013 {{{1
 - set/restore guifont
